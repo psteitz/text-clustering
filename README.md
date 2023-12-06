@@ -2,6 +2,6 @@
 
 Text clustering algorithms implemented using Huggingface models and frameworks.
 
-1. Apply k-means classification to the representations from the top layer of a pre-trained transformer model.  
-2. (original?) Take all the input texts and split them up into sentences. For each sentence in the combined set, compute how much each of the input texts implies it.  Display ranked list of sentences.
-
+1. Apply k-means classification to the representations from the top layer of a pre-trained transformer model after forward feed of full input text fields
+2. Take all the input texts and split them up into sentences. Compute classifications as in 1 but at the sentence level
+3. Split input texts into sentences and rank the sentences by how much the other sentences imply them
