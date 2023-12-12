@@ -2,6 +2,7 @@
 #
 # Datasets
 data/*.csv
+tests/test_data
 # Models
 
 # vscode
