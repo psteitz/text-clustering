@@ -14,11 +14,21 @@ import pandas as pd
 def convert_csv_to_hf(csv_path, text_column, hf_name):
     """
     Convert csv file to huggingface dataset set up for nli task.
+    Rename text column to "text", drope other columns and rows with empty text.
+
+    Args:
+        csv_path (str): Path to csv file containing text to cluster.
+        text_column (str): Name of column containing text to cluster.
+        hf_name (str): Name of huggingface dataset to create.
     """
     # read csv file
     df = pd.read_csv(csv_path)
+    # drop columns other than text column
+    df = df.drop(df.columns.difference([text_column]), axis=1)
+    # drop rows with empty text
+    df = df.dropna(subset=[text_column])
     # create huggingface dataset
-    dataset = Dataset.from_pandas(df)
+    dataset = Dataset.from_pandas(df, preserve_index=False)
     # rename text column
     dataset = dataset.rename_column(text_column, "text")
     # save dataset
