@@ -23,12 +23,15 @@ nli_model.to(device)
 TARGET_QUESTION = "What does ASF do better than anyone else?"
 SUPPORT_THRESHOLD = 0.5
 MIN_SENTENCE_LENGTH = 4
+DS_NAME = "hf_dataset"
+CSV_NAME = "brandSurvey.csv"
+
 print("Loading csv file...")
 # load csv file, create and save hf dataset with text column from target_question column
 csv_to_hf.convert_csv_to_hf(
-    "../data/brandSurvey.csv", TARGET_QUESTION, "../data/what_change")
+    "../data/" + CSV_NAME, TARGET_QUESTION, "../data/" + DS_NAME)
 # load hf dataset
-ds = load_from_disk("../data/what_change")
+ds = load_from_disk("../data/" + DS_NAME)
 print("Extracting sentences...")
 # get sentences from text column
 sentences = text_utils.get_all_sentences(ds["text"])
