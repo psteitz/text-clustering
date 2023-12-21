@@ -2,7 +2,7 @@
 #
 # Datasets
 data/*.csv
-data/what_change
+data/hf_dataset
 tests/test_data
 # Models
 
