@@ -6,7 +6,9 @@ from datasets import load_from_disk
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import torch
 
-# FIXME: path hack to allow peer modulesto be imported
+# FIXME: path hack to allow peer modules to be imported
+# As is, requires text-classification to be checked out at the same level as the root of this repo.
+# So, for example text-classification and this repo are both cloned into subdirectories of $HOME.
 sys.path.append("..")
 
 # import from sibling
@@ -20,11 +22,11 @@ tokenizer = AutoTokenizer.from_pretrained(HF_MNLI)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 nli_model.to(device)
 
-TARGET_QUESTION = "What does ASF do better than anyone else?"
+TARGET_QUESTION = "ptylik_dwhatdp"
 SUPPORT_THRESHOLD = 0.5
 MIN_SENTENCE_LENGTH = 4
 DS_NAME = "hf_dataset"
-CSV_NAME = "brandSurvey.csv"
+CSV_NAME = "anes20i1.csv"
 
 print("Loading csv file...")
 # load csv file, create and save hf dataset with text column from target_question column
@@ -32,6 +34,10 @@ csv_to_hf.convert_csv_to_hf(
     "../data/" + CSV_NAME, TARGET_QUESTION, "../data/" + DS_NAME)
 # load hf dataset
 ds = load_from_disk("../data/" + DS_NAME)
+# get rid of "//" and "\\" in text column
+print("Cleaning text...")
+ds.map(lambda x: {"text": x["text"].replace("//", " ").replace("\\", " ")})
+
 print("Extracting sentences...")
 # get sentences from text column
 sentences = text_utils.get_all_sentences(ds["text"])
@@ -42,6 +48,7 @@ print(len(sentences), "sentences", "in", ds.num_rows, "rows")
 # get support for sentences
 print("Computing support...")
 support = {}
+sentence_count = 0
 for sentence in sentences:
     support_score = 0
     for row in ds:
@@ -54,6 +61,9 @@ for sentence in sentences:
         if entailment > SUPPORT_THRESHOLD:
             support_score += entailment
     support[sentence] = support_score
+    sentence_count += 1
+    if sentence_count % 100 == 0:
+        print(sentence_count, "sentences processed out of ", len(sentences))
 # sort sentences by support
 print("Sorting sentences by support...")
 sorted_support = sorted(support.items(), key=lambda kv: kv[1], reverse=True)
